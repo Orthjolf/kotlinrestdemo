@@ -19,15 +19,17 @@ import javax.ws.rs.core.Response
 @Path("greet/{name}")
 open class GreetResource @Autowired constructor (val service: GreetService) {
 
-    data class Greet(val message: String, val time: String)
+    data class Greet(val message: String, val count: Int)
+    data class Welcome(val message: String)
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     fun greet(@PathParam("name") name: String): Response {
         val resp = service.greet(name)
+
         return when(resp) {
-            is GreetService.Resp.Success -> Response.ok(Greet(resp.msg, Date().toString())).build()
-            is GreetService.Resp.Error -> Response.status(Response.Status.BAD_REQUEST).build()
+            is GreetService.Resp.Success -> Response.ok(Greet(resp.greeting, resp.count)).build()
+            is GreetService.Resp.SuccessNew -> Response.ok(Welcome(resp.greeting)).build()
             else -> Response.status(Response.Status.INTERNAL_SERVER_ERROR).build()
         }
     }
